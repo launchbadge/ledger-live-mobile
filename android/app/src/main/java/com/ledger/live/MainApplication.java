@@ -1,5 +1,6 @@
 package com.ledger.live;
 
+import com.ledger.live.generated.BasePackageList;
 import android.app.Application;
 import android.content.Context;
 import com.facebook.react.PackageList;
@@ -11,9 +12,12 @@ import com.facebook.soloader.SoLoader;
 import com.facebook.react.ReactInstanceManager;
 
 import org.reactnative.camera.RNCameraPackage;
+import org.unimodules.adapters.react.ModuleRegistryAdapter;
+import org.unimodules.adapters.react.ReactModuleRegistryProvider;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Arrays;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -25,6 +29,9 @@ public class MainApplication extends Application implements ReactApplication {
       System.exit(1);
     }
   }
+
+  private final ReactModuleRegistryProvider mModuleRegistryProvider = 
+    new ReactModuleRegistryProvider(new BasePackageList().getPackageList(), null);
 
   private final ReactNativeHost mReactNativeHost =
       new ReactNativeHost(this) {
@@ -38,6 +45,12 @@ public class MainApplication extends Application implements ReactApplication {
           @SuppressWarnings("UnnecessaryLocalVariable")
           List<ReactPackage> packages = new PackageList(this).getPackages();
           packages.add(new RNCameraPackage());
+
+          List<ReactPackage> unimodules = Arrays.<ReactPackage>asList(
+            new ModuleRegistryAdapter(mModuleRegistryProvider));
+
+          packages.addAll(unimodules);
+
           return packages;
         }
 

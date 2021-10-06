@@ -159,8 +159,11 @@ export default function ReceiveConfirmation({ navigation, route }: Props) {
 
   useEffect(() => {
     const device = route.params.device;
+    if (!account) return;
+    const mainAccount = getMainAccount(account, parentAccount);
+    const isAddressHedera = mainAccount.hederaResources != null;
 
-    if (device) {
+    if (device && !isAddressHedera) {
       setAllowNavigation(false);
       verifyOnDevice(device);
     } else {
@@ -173,6 +176,9 @@ export default function ReceiveConfirmation({ navigation, route }: Props) {
   const unsafe = !route.params.device?.deviceId;
   const QRSize = Math.round(width / 1.8 - 16);
   const mainAccount = getMainAccount(account, parentAccount);
+  const address = mainAccount.hederaResources?.accountId?.toString()
+    ?? mainAccount.freshAddress;
+  const isAddressHedera = mainAccount.hederaResources != null;
   const currency = getAccountCurrency(account);
 
   return (
@@ -213,7 +219,7 @@ export default function ReceiveConfirmation({ navigation, route }: Props) {
               >
                 <QRCode
                   size={QRSize}
-                  value={mainAccount.freshAddress}
+                  value={address}
                   ecl="H"
                 />
               </View>
@@ -232,20 +238,20 @@ export default function ReceiveConfirmation({ navigation, route }: Props) {
           </View>
           <View style={styles.address}>
             <DisplayAddress
-              address={mainAccount.freshAddress}
+              address={address}
               verified={verified}
             />
           </View>
           <View style={styles.copyLink}>
             <CopyLink
               style={styles.copyShare}
-              string={mainAccount.freshAddress}
+              string={address}
               replacement={<Trans i18nKey="transfer.receive.addressCopied" />}
             >
               <Trans i18nKey="transfer.receive.copyAddress" />
             </CopyLink>
             <View style={styles.copyShare}>
-              <ShareLink value={mainAccount.freshAddress}>
+              <ShareLink value={address}>
                 <Trans i18nKey="transfer.receive.shareAddress" />
               </ShareLink>
             </View>
@@ -315,7 +321,7 @@ export default function ReceiveConfirmation({ navigation, route }: Props) {
         hideModalContentWhileAnimating
       >
         <View style={[styles.qrZoomWrapper, { backgroundColor: "#FFF" }]}>
-          <QRCode size={width - 66} value={mainAccount.freshAddress} ecl="H" />
+          <QRCode size={width - 66} value={address} ecl="H" />
         </View>
       </ReactNativeModal>
       <BottomModal
